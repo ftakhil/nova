@@ -5,13 +5,26 @@ import AIConversation from './components/AIConversation';
 import Translation from './components/Translation';
 import ImageIdentification from './components/ImageIdentification';
 import UserConnect from './components/UserConnect';
+import Playground from './components/Playground';
+import VisualLearning from './components/VisualLearning';
 
-export type CurrentPage = 'landing' | 'dashboard' | 'ai-conversation' | 'translation' | 'image-identification' | 'user-connect';
+export type CurrentPage =
+  | 'landing'
+  | 'dashboard'
+  | 'ai-conversation'
+  | 'translation'
+  | 'image-identification'
+  | 'user-connect'
+  | 'playground'
+  | 'dictionary'
+  | 'visual-learning';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('landing');
+  const [previousPage, setPreviousPage] = useState<CurrentPage | null>(null);
 
   const navigateTo = (page: CurrentPage) => {
+    setPreviousPage(currentPage);
     setCurrentPage(page);
   };
 
@@ -29,6 +42,12 @@ function App() {
         return <ImageIdentification onNavigate={navigateTo} />;
       case 'user-connect':
         return <UserConnect onNavigate={navigateTo} />;
+      case 'playground':
+        return <Playground onQuit={() => previousPage && setCurrentPage(previousPage)} />;
+      case 'dictionary':
+        return <Translation onNavigate={navigateTo} />;
+      case 'visual-learning':
+        return <VisualLearning />;
       default:
         return <LandingPage onEnter={() => navigateTo('dashboard')} />;
     }

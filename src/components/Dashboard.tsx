@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageCircle, Languages, Camera, Users, ArrowLeft, Sparkles, ArrowRight } from 'lucide-react';
+import { MessageCircle, Languages, Camera, Users, ArrowLeft, Sparkles, ArrowRight, Gamepad2, BookOpen } from 'lucide-react';
 import { CurrentPage } from '../App';
 
 interface DashboardProps {
@@ -31,6 +31,22 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: Camera,
       color: 'purple',
       gradient: 'from-purple-500 to-purple-600'
+    },
+    {
+      id: 'playground',
+      title: 'Playground',
+      description: 'Practice grammar and vocabulary with interactive puzzles and games.',
+      icon: Gamepad2,
+      color: 'yellow',
+      gradient: 'from-yellow-400 to-yellow-500'
+    },
+    {
+      id: 'dictionary',
+      title: 'Dictionary',
+      description: 'Expand your vocabulary with word meanings and examples.',
+      icon: BookOpen,
+      color: 'pink',
+      gradient: 'from-pink-500 to-pink-600'
     }
   ];
 

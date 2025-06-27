@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { BookOpen, Sparkles, ArrowRight, MessageCircle, Languages, Camera, Users } from 'lucide-react';
+import { BookOpen, Sparkles, ArrowRight, MessageCircle, Languages, Camera, Users, Smile } from 'lucide-react';
 import ReactCountryFlag from 'react-country-flag';
+import { motion } from 'framer-motion';
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -103,12 +104,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      {/* Animated background glow */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        initial={{ opacity: 0.2, scale: 1 }}
+        animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.1, 1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        style={{ zIndex: 0 }}
+      >
+        <div className="w-[700px] h-[700px] rounded-full bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-3xl" />
+      </motion.div>
       {/* Modal for language selection */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
           <div className="max-w-6xl w-full text-center">
-            <div className="mb-16 animate-fade-in bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl mx-auto">
+            <motion.div
+              className="mb-16 bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl mx-auto relative"
+              initial={{ opacity: 0, scale: 0.95, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              style={{ zIndex: 1 }}
+            >
               {step === 1 && (
                 <>
                   <div className="flex items-center justify-center mb-8">
@@ -178,38 +195,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                   </button>
                 </>
               )}
-            </div>
+            </motion.div>
           </div>
         </div>
       )}
-      {/* Existing landing page content */}
-      <div className="max-w-6xl w-full text-center">
-        {/* Header */}
-        <div className="mb-16 animate-fade-in bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl">
-          <div className="flex items-center justify-center mb-8">
-            <div className="relative">
-              <BookOpen className="w-20 h-20 text-blue-600 drop-shadow-xl" />
-              <Sparkles className="w-8 h-8 text-purple-500 absolute -top-3 -right-3 animate-pulse" />
-            </div>
+      {/* Welcome Card */}
+      <motion.div
+        className="max-w-3xl w-full mx-auto text-center relative z-10"
+        initial={{ opacity: 0, scale: 0.95, y: 40 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <div className="mb-12 bg-white/70 glass rounded-3xl shadow-2xl p-12 backdrop-blur-xl flex flex-col items-center">
+          <div className="flex items-center justify-center mb-6">
+            <Smile className="w-16 h-16 text-purple-500 drop-shadow-xl animate-bounce-slow" />
           </div>
-          <h1 className="text-6xl font-bold text-gray-800 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient-move">
-            Adaptive Language Learning Companion
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient-move">
+            Welcome to Voix!
           </h1>
-          <p className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12 animate-fade-in delay-200">
-            Master any language with AI-powered conversations, real-time translation, 
-            visual recognition, and a global community of learners.
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-700 mb-6 animate-fade-in-up delay-200">
+            Your Adaptive Language Learning Companion
+          </h2>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-10 animate-fade-in delay-300">
+            Ready to start your language journey? Practice with AI-powered conversations, real-time translation, visual learning, and connect with a global community. Let's make learning fun and personal!
           </p>
           <button
             onClick={onEnter}
-            className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-2xl font-bold text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto animate-fade-in-up delay-500"
+            className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-2xl font-bold text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto animate-fade-in-up delay-500"
           >
             <span>Start Learning</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
           </button>
         </div>
-
         {/* Features Preview */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 mt-10">
           {[0,1,2,3].map(i => (
             <div key={i} className={`bg-white/60 glass backdrop-blur-2xl rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 border border-white/30 ${cardAnimations[i]}`}> 
               <div className={`bg-gradient-to-r ${i===0?'from-blue-500 to-blue-600':i===1?'from-green-500 to-green-600':i===2?'from-purple-500 to-purple-600':'from-indigo-500 to-purple-600'} rounded-xl p-3 w-fit mx-auto mb-4 shadow-lg`}>
@@ -225,23 +244,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             </div>
           ))}
         </div>
-
-        {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-3xl mx-auto opacity-75">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-2">50+</div>
-            <div className="text-gray-600">Languages Supported</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-purple-600 mb-2">1M+</div>
-            <div className="text-gray-600">Active Learners</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600 mb-2">24/7</div>
-            <div className="text-gray-600">AI Availability</div>
-          </div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
