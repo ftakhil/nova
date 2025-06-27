@@ -358,28 +358,6 @@ export function VoiceChat({
           >
             {getStatusText()}
           </motion.p>
-          
-          <p className="text-sm text-muted-foreground font-mono">
-            {formatTime(duration)}
-          </p>
-
-          {volume > 0 && (
-            <motion.div
-              className="flex items-center justify-center space-x-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <VolumeX className="w-4 h-4 text-muted-foreground" />
-              <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-blue-500 rounded-full"
-                  animate={{ width: `${volume}%` }}
-                  transition={{ duration: 0.1 }}
-                />
-              </div>
-              <Volume2 className="w-4 h-4 text-muted-foreground" />
-            </motion.div>
-          )}
         </div>
 
         {/* AI indicator */}

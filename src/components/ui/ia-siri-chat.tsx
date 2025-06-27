@@ -10,7 +10,6 @@ interface VoiceChatProps {
   onStop?: (duration: number) => void;
   onVolumeChange?: (volume: number) => void;
   className?: string;
-  demoMode?: boolean;
 }
 
 interface Particle {
@@ -26,8 +25,7 @@ export function VoiceChat({
   onStart,
   onStop,
   onVolumeChange,
-  className,
-  demoMode = true
+  className
 }: VoiceChatProps) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -38,6 +36,14 @@ export function VoiceChat({
   const [waveformData, setWaveformData] = useState<number[]>(Array(32).fill(0));
   const intervalRef = useRef<NodeJS.Timeout>();
   const animationRef = useRef<number>();
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number>();
+  const audioUrlRef = useRef<string | null>(null);
+  const [transcript, setTranscript] = useState<string>("");
 
   // Generate particles for ambient effect
   useEffect(() => {
@@ -85,74 +91,111 @@ export function VoiceChat({
   // Timer and waveform simulation
   useEffect(() => {
     if (isListening) {
+      // TODO: Replace this simulation with real audio frequency data if available
       intervalRef.current = setInterval(() => {
-        setDuration(prev => prev + 1);
-        
-        // Simulate audio waveform
-        const newWaveform = Array(32).fill(0).map(() => 
-          Math.random() * (isListening ? 100 : 20)
-        );
+        // Simulate audio waveform (replace with real frequency data if available)
+        const newWaveform = Array(32).fill(0).map(() => Math.random() * 100);
         setWaveformData(newWaveform);
-        
-        // Simulate volume changes
-        const newVolume = Math.random() * 100;
-        setVolume(newVolume);
-        onVolumeChange?.(newVolume);
       }, 100);
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
       setWaveformData(Array(32).fill(0));
-      setVolume(0);
     }
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isListening, onVolumeChange]);
+  }, [isListening]);
 
-  // Demo mode simulation
+  // Start/stop recording and waveform animation
   useEffect(() => {
-    if (!demoMode) return;
-
-    const demoSequence = async () => {
-      // Start listening
-      setIsListening(true);
-      onStart?.();
-      
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Stop listening and start processing
-      setIsListening(false);
-      setIsProcessing(true);
-      onStop?.(duration);
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Start speaking response
-      setIsProcessing(false);
-      setIsSpeaking(true);
-      
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      // Reset
-      setIsSpeaking(false);
-      setDuration(0);
-      
-      // Repeat demo
-      setTimeout(demoSequence, 2000);
+    if (!isListening) {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      return;
+    }
+    setTranscript(""); // Clear transcript on new recording
+    // Start recording
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
+      setAudioChunks([]);
+      recorder.ondataavailable = e => {
+        setAudioChunks(prev => [...prev, e.data]);
+      };
+      recorder.start();
+      // Setup audio context for waveform
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioContext;
+      const source = audioContext.createMediaStreamSource(stream);
+      sourceRef.current = source;
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 64;
+      analyserRef.current = analyser;
+      source.connect(analyser);
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const animate = () => {
+        analyser.getByteFrequencyData(dataArray);
+        setWaveformData(Array.from(dataArray));
+        animationFrameRef.current = requestAnimationFrame(animate);
+      };
+      animate();
+      // Speech recognition
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.onresult = (event: any) => {
+          if (event.results && event.results[0] && event.results[0][0]) {
+            setTranscript(event.results[0][0].transcript);
+          }
+        };
+        recognition.onerror = () => {};
+        recognition.start();
+        // Stop recognition when recording stops
+        const stopRecognition = () => recognition.stop();
+        mediaRecorder?.addEventListener('stop', stopRecognition);
+      }
+    });
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+        audioContextRef.current = null;
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
+  }, [isListening]);
 
-    const timeout = setTimeout(demoSequence, 1000);
-    return () => clearTimeout(timeout);
-  }, [demoMode, onStart, onStop, duration]);
+  // Playback after recording
+  useEffect(() => {
+    if (!isListening && audioChunks.length > 0) {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+      }
+      audioUrlRef.current = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrlRef.current);
+      audio.play();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isListening]);
 
   const handleToggleListening = () => {
-    if (demoMode) return;
-    
     if (isListening) {
       setIsListening(false);
       onStop?.(duration);
@@ -169,19 +212,8 @@ export function VoiceChat({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const getStatusText = () => {
-    if (isListening) return "Listening...";
-    if (isProcessing) return "Processing...";
-    if (isSpeaking) return "Speaking...";
-    return "Tap to speak";
-  };
-
-  const getStatusColor = () => {
-    if (isListening) return "text-blue-400";
-    if (isProcessing) return "text-yellow-400";
-    if (isSpeaking) return "text-green-400";
-    return "text-muted-foreground";
-  };
+  const getStatusText = () => isListening ? "Listening..." : "Not Listening...";
+  const getStatusColor = () => isListening ? "text-blue-400" : "text-red-500";
 
   return (
     <div className={cn("flex flex-col items-center justify-center min-h-screen bg-background relative overflow-hidden", className)}>
@@ -237,8 +269,6 @@ export function VoiceChat({
               "relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300",
               "bg-gradient-to-br from-primary/20 to-primary/10 border-2",
               isListening ? "border-blue-500 shadow-lg shadow-blue-500/25" :
-              isProcessing ? "border-yellow-500 shadow-lg shadow-yellow-500/25" :
-              isSpeaking ? "border-green-500 shadow-lg shadow-green-500/25" :
               "border-border hover:border-primary/50"
             )}
             animate={{
@@ -251,45 +281,14 @@ export function VoiceChat({
               repeat: isListening ? Infinity : 0
             }}
           >
-            <AnimatePresence mode="wait">
-              {isProcessing ? (
-                <motion.div
-                  key="processing"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <Loader2 className="w-12 h-12 text-yellow-500 animate-spin" />
-                </motion.div>
-              ) : isSpeaking ? (
-                <motion.div
-                  key="speaking"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <Volume2 className="w-12 h-12 text-green-500" />
-                </motion.div>
-              ) : isListening ? (
-                <motion.div
-                  key="listening"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <Mic className="w-12 h-12 text-blue-500" />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="idle"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <Mic className="w-12 h-12 text-muted-foreground" />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <motion.div
+              key="listening"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+            >
+              <Mic className="w-12 h-12 text-blue-500" />
+            </motion.div>
           </motion.button>
 
           {/* Pulse rings */}
@@ -330,13 +329,11 @@ export function VoiceChat({
               className={cn(
                 "w-1 rounded-full transition-colors duration-300",
                 isListening ? "bg-blue-500" :
-                isProcessing ? "bg-yellow-500" :
-                isSpeaking ? "bg-green-500" :
                 "bg-muted"
               )}
               animate={{
                 height: `${Math.max(4, height * 0.6)}px`,
-                opacity: isListening || isSpeaking ? 1 : 0.3
+                opacity: isListening ? 1 : 0.3
               }}
               transition={{
                 duration: 0.1,
@@ -353,32 +350,15 @@ export function VoiceChat({
             animate={{ opacity: [1, 0.7, 1] }}
             transition={{
               duration: 2,
-              repeat: isListening || isProcessing || isSpeaking ? Infinity : 0
+              repeat: isListening ? Infinity : 0
             }}
           >
             {getStatusText()}
           </motion.p>
-          
-          <p className="text-sm text-muted-foreground font-mono">
-            {formatTime(duration)}
-          </p>
-
-          {volume > 0 && (
-            <motion.div
-              className="flex items-center justify-center space-x-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <VolumeX className="w-4 h-4 text-muted-foreground" />
-              <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-blue-500 rounded-full"
-                  animate={{ width: `${volume}%` }}
-                  transition={{ duration: 0.1 }}
-                />
-              </div>
-              <Volume2 className="w-4 h-4 text-muted-foreground" />
-            </motion.div>
+          {isListening && transcript && (
+            <div className="mt-2 text-base text-gray-700 font-mono bg-white/70 rounded-xl px-4 py-2 inline-block shadow">
+              {transcript}
+            </div>
           )}
         </div>
 
@@ -392,8 +372,18 @@ export function VoiceChat({
             ease: "easeInOut"
           }}
         >
-          <Sparkles className="w-4 h-4" />
-          <span>AI Voice Assistant</span>
+          <button
+            onClick={handleToggleListening}
+            className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/80 shadow hover:bg-blue-50 transition-colors border border-gray-200"
+            aria-label={isListening ? 'Turn off mic' : 'Turn on mic'}
+          >
+            {isListening ? (
+              <MicOff className="w-5 h-5 text-red-500" />
+            ) : (
+              <Mic className="w-5 h-5 text-blue-500" />
+            )}
+            <span className="font-medium text-gray-700">AI Voice Assistant</span>
+          </button>
         </motion.div>
       </div>
     </div>
@@ -407,7 +397,6 @@ export default function VoiceChatDemo() {
       onStart={() => console.log("Voice recording started")}
       onStop={(duration) => console.log(`Voice recording stopped after ${duration}s`)}
       onVolumeChange={(volume) => console.log(`Volume: ${volume}%`)}
-      demoMode={true}
     />
   );
 } 
