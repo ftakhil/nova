@@ -1,9 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BookOpen, Sparkles, ArrowRight, MessageCircle, Languages, Camera, Users } from 'lucide-react';
+import ReactCountryFlag from 'react-country-flag';
 
 interface LandingPageProps {
   onEnter: () => void;
 }
+
+const supportedLanguages = [
+  'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Hindi', 'Arabic', 'Russian', 'Portuguese', 'Italian', 'Malayalam', 'Tamil', 'Bengali', 'Turkish', 'Dutch', 'Greek', 'Polish', 'Swedish', 'Norwegian', 'Finnish', 'Danish', 'Czech', 'Hungarian', 'Thai', 'Vietnamese', 'Indonesian', 'Filipino', 'Swahili', 'Hebrew', 'Urdu', 'Persian', 'Romanian', 'Ukrainian', 'Serbian', 'Croatian', 'Slovak', 'Bulgarian', 'Slovenian', 'Estonian', 'Latvian', 'Lithuanian', 'Georgian', 'Armenian', 'Azerbaijani', 'Kazakh', 'Uzbek', 'Mongolian', 'Other'
+];
+
+// Map languages to country codes for flags
+const languageToCountry: Record<string, string> = {
+  English: 'GB',
+  Spanish: 'ES',
+  French: 'FR',
+  German: 'DE',
+  Chinese: 'CN',
+  Japanese: 'JP',
+  Korean: 'KR',
+  Hindi: 'IN',
+  Arabic: 'SA',
+  Russian: 'RU',
+  Portuguese: 'PT',
+  Italian: 'IT',
+  Malayalam: 'IN',
+  Tamil: 'IN',
+  Bengali: 'BD',
+  Turkish: 'TR',
+  Dutch: 'NL',
+  Greek: 'GR',
+  Polish: 'PL',
+  Swedish: 'SE',
+  Norwegian: 'NO',
+  Finnish: 'FI',
+  Danish: 'DK',
+  Czech: 'CZ',
+  Hungarian: 'HU',
+  Thai: 'TH',
+  Vietnamese: 'VN',
+  Indonesian: 'ID',
+  Filipino: 'PH',
+  Swahili: 'TZ',
+  Hebrew: 'IL',
+  Urdu: 'PK',
+  Persian: 'IR',
+  Romanian: 'RO',
+  Ukrainian: 'UA',
+  Serbian: 'RS',
+  Croatian: 'HR',
+  Slovak: 'SK',
+  Bulgarian: 'BG',
+  Slovenian: 'SI',
+  Estonian: 'EE',
+  Latvian: 'LV',
+  Lithuanian: 'LT',
+  Georgian: 'GE',
+  Armenian: 'AM',
+  Azerbaijani: 'AZ',
+  Kazakh: 'KZ',
+  Uzbek: 'UZ',
+  Mongolian: 'MN',
+  Other: 'UN', // Use UN flag or fallback
+};
 
 const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
   const cardAnimations = [
@@ -13,8 +72,117 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     'animate-fade-in-up delay-700',
   ];
 
+  // Modal state
+  const [showModal, setShowModal] = useState(true);
+  const [step, setStep] = useState(1);
+  const [knownLanguages, setKnownLanguages] = useState<string[]>([]);
+  const [targetLanguage, setTargetLanguage] = useState<string>("");
+
+  const handleKnownLanguageChange = (lang: string) => {
+    setKnownLanguages(prev =>
+      prev.includes(lang)
+        ? prev.filter(l => l !== lang)
+        : [...prev, lang]
+    );
+  };
+
+  const handleTargetLanguageChange = (lang: string) => {
+    setTargetLanguage(lang);
+  };
+
+  const handleNext = () => {
+    if (step === 1 && knownLanguages.length > 0) {
+      setStep(2);
+    }
+  };
+
+  const handleStart = () => {
+    if (targetLanguage) {
+      setShowModal(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Modal for language selection */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+          <div className="max-w-6xl w-full text-center">
+            <div className="mb-16 animate-fade-in bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl mx-auto">
+              {step === 1 && (
+                <>
+                  <div className="flex items-center justify-center mb-8">
+                    <div className="relative">
+                      <BookOpen className="w-20 h-20 text-blue-600 drop-shadow-xl" />
+                      <Sparkles className="w-8 h-8 text-purple-500 absolute -top-3 -right-3 animate-pulse" />
+                    </div>
+                  </div>
+                  <h2 className="text-4xl font-bold mb-6 text-gray-800">Which languages do you know?</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-60 overflow-y-auto mb-8">
+                    {supportedLanguages.map(lang => (
+                      <label key={lang} className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-all ${knownLanguages.includes(lang) ? 'bg-blue-100' : 'hover:bg-gray-100'}`}>
+                        <input
+                          type="checkbox"
+                          checked={knownLanguages.includes(lang)}
+                          onChange={() => handleKnownLanguageChange(lang)}
+                          className="accent-blue-600"
+                        />
+                        <ReactCountryFlag
+                          countryCode={languageToCountry[lang] || 'UN'}
+                          svg
+                          style={{ width: '1.5em', height: '1.5em', borderRadius: '50%' }}
+                          title={lang}
+                        />
+                        <span>{lang}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <button
+                    className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${knownLanguages.length > 0 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                    onClick={handleNext}
+                    disabled={knownLanguages.length === 0}
+                  >
+                    Next
+                  </button>
+                </>
+              )}
+              {step === 2 && (
+                <>
+                  <h2 className="text-2xl font-bold mb-4 text-gray-800">Which language do you want to learn?</h2>
+                  <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto mb-6">
+                    {supportedLanguages.map(lang => (
+                      <label key={lang} className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-all ${targetLanguage === lang ? 'bg-purple-100' : 'hover:bg-gray-100'}`}>
+                        <input
+                          type="radio"
+                          name="targetLanguage"
+                          checked={targetLanguage === lang}
+                          onChange={() => handleTargetLanguageChange(lang)}
+                          className="accent-purple-600"
+                        />
+                        <ReactCountryFlag
+                          countryCode={languageToCountry[lang] || 'UN'}
+                          svg
+                          style={{ width: '1.5em', height: '1.5em', borderRadius: '50%' }}
+                          title={lang}
+                        />
+                        <span>{lang}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <button
+                    className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${targetLanguage ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                    onClick={handleStart}
+                    disabled={!targetLanguage}
+                  >
+                    Start
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Existing landing page content */}
       <div className="max-w-6xl w-full text-center">
         {/* Header */}
         <div className="mb-16 animate-fade-in bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl">

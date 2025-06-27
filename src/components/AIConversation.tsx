@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MessageCircle, Send, Bot, User } from 'lucide-react';
 import { CurrentPage } from '../App';
-import VoiceRecorder from './VoiceRecorder';
+import VoiceChatDemo from "./ui/ia-siri-chat";
 
 interface AIConversationProps {
   onNavigate: (page: CurrentPage) => void;
@@ -167,11 +167,7 @@ const AIConversation: React.FC<AIConversationProps> = ({ onNavigate }) => {
         {/* Input Area */}
         {isVoiceMode ? (
           <div className="bg-white rounded-2xl p-8 shadow-lg">
-            <VoiceRecorder
-              onRecordingComplete={handleVoiceRecording}
-              onRecordingStart={() => console.log('Recording started')}
-              onRecordingStop={() => console.log('Recording stopped')}
-            />
+            <VoiceChatDemo />
           </div>
         ) : (
           <div className="bg-white rounded-2xl p-4 shadow-lg">
