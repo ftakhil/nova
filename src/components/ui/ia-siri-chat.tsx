@@ -10,6 +10,7 @@ interface VoiceChatProps {
   onStop?: (duration: number) => void;
   onVolumeChange?: (volume: number) => void;
   className?: string;
+  onTranscript?: (transcript: string) => void;
 }
 
 interface Particle {
@@ -25,7 +26,8 @@ export function VoiceChat({
   onStart,
   onStop,
   onVolumeChange,
-  className
+  className,
+  onTranscript
 }: VoiceChatProps) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -161,6 +163,7 @@ export function VoiceChat({
         recognition.onresult = (event: any) => {
           if (event.results && event.results[0] && event.results[0][0]) {
             setTranscript(event.results[0][0].transcript);
+            if (onTranscript) onTranscript(event.results[0][0].transcript);
           }
         };
         recognition.onerror = () => {};
@@ -391,12 +394,13 @@ export function VoiceChat({
 }
 
 // Usage example
-export default function VoiceChatDemo() {
+export default function VoiceChatDemo(props: { onTranscript?: (transcript: string) => void }) {
   return (
     <VoiceChat
       onStart={() => console.log("Voice recording started")}
       onStop={(duration) => console.log(`Voice recording stopped after ${duration}s`)}
       onVolumeChange={(volume) => console.log(`Volume: ${volume}%`)}
+      onTranscript={props.onTranscript}
     />
   );
-} 
+}

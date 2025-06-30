@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -22,7 +22,27 @@ export default {
           '50%': { backgroundPosition: '100% 50%' },
         },
       },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      colors: {
+        'bolt-blue': '#5A8FFF',
+        'bolt-purple': '#A259FF',
+        'bolt-pink': '#FF6F91',
+        'bolt-glass': 'rgba(255,255,255,0.6)',
+        'bolt-dark-glass': 'rgba(30,41,59,0.7)',
+      },
+      backgroundImage: {
+        'bolt-gradient': 'linear-gradient(135deg, #5A8FFF 0%, #A259FF 50%, #FF6F91 100%)',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.18)',
+        'glass-lg': '0 16px 48px 0 rgba(31, 38, 135, 0.22)',
+      },
+      blur: {
+        'glass': '16px',
+      },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
 };

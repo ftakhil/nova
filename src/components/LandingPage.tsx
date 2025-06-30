@@ -74,177 +74,129 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
   ];
 
   // Modal state
-  const [showModal, setShowModal] = useState(true);
-  const [step, setStep] = useState(1);
-  const [knownLanguages, setKnownLanguages] = useState<string[]>([]);
-  const [targetLanguage, setTargetLanguage] = useState<string>("");
+  // const [showModal, setShowModal] = useState(true);
+  // const [step, setStep] = useState(1);
+  // const [knownLanguages, setKnownLanguages] = useState<string[]>([]);
+  // const [targetLanguage, setTargetLanguage] = useState<string>("");
 
-  const handleKnownLanguageChange = (lang: string) => {
-    setKnownLanguages(prev =>
-      prev.includes(lang)
-        ? prev.filter(l => l !== lang)
-        : [...prev, lang]
-    );
-  };
+  // const handleKnownLanguageChange = (lang: string) => {
+  //   setKnownLanguages(prev =>
+  //     prev.includes(lang)
+  //       ? prev.filter(l => l !== lang)
+  //       : [...prev, lang]
+  //   );
+  // };
 
-  const handleTargetLanguageChange = (lang: string) => {
-    setTargetLanguage(lang);
-  };
+  // const handleTargetLanguageChange = (lang: string) => {
+  //   setTargetLanguage(lang);
+  // };
 
-  const handleNext = () => {
-    if (step === 1 && knownLanguages.length > 0) {
-      setStep(2);
-    }
-  };
+  // const handleNext = () => {
+  //   if (step === 1 && knownLanguages.length > 0) {
+  //     setStep(2);
+  //   }
+  // };
 
-  const handleStart = () => {
-    if (targetLanguage) {
-      setShowModal(false);
-    }
-  };
+  // const handleStart = () => {
+  //   if (targetLanguage) {
+  //     setShowModal(false);
+  //   }
+  // };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Animated background glow */}
-      <motion.div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-        initial={{ opacity: 0.2, scale: 1 }}
-        animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.1, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        style={{ zIndex: 0 }}
-      >
-        <div className="w-[700px] h-[700px] rounded-full bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-3xl" />
-      </motion.div>
-      {/* Modal for language selection */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-          <div className="max-w-6xl w-full text-center">
-            <motion.div
-              className="mb-16 bg-white/40 glass rounded-3xl shadow-2xl p-8 backdrop-blur-xl mx-auto relative"
-              initial={{ opacity: 0, scale: 0.95, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              style={{ zIndex: 1 }}
-            >
-              {step === 1 && (
-                <>
-                  <div className="flex items-center justify-center mb-8">
-                    <div className="relative">
-                      <BookOpen className="w-20 h-20 text-blue-600 drop-shadow-xl" />
-                      <Sparkles className="w-8 h-8 text-purple-500 absolute -top-3 -right-3 animate-pulse" />
-                    </div>
-                  </div>
-                  <h2 className="text-4xl font-bold mb-6 text-gray-800">Which languages do you know?</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-60 overflow-y-auto mb-8">
-                    {supportedLanguages.map(lang => (
-                      <label key={lang} className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-all ${knownLanguages.includes(lang) ? 'bg-blue-100' : 'hover:bg-gray-100'}`}>
-                        <input
-                          type="checkbox"
-                          checked={knownLanguages.includes(lang)}
-                          onChange={() => handleKnownLanguageChange(lang)}
-                          className="accent-blue-600"
-                        />
-                        <ReactCountryFlag
-                          countryCode={languageToCountry[lang] || 'UN'}
-                          svg
-                          style={{ width: '1.5em', height: '1.5em', borderRadius: '50%' }}
-                          title={lang}
-                        />
-                        <span>{lang}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <button
-                    className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${knownLanguages.length > 0 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                    onClick={handleNext}
-                    disabled={knownLanguages.length === 0}
-                  >
-                    Next
-                  </button>
-                </>
-              )}
-              {step === 2 && (
-                <>
-                  <h2 className="text-2xl font-bold mb-4 text-gray-800">Which language do you want to learn?</h2>
-                  <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto mb-6">
-                    {supportedLanguages.map(lang => (
-                      <label key={lang} className={`flex items-center space-x-2 p-2 rounded-lg cursor-pointer transition-all ${targetLanguage === lang ? 'bg-purple-100' : 'hover:bg-gray-100'}`}>
-                        <input
-                          type="radio"
-                          name="targetLanguage"
-                          checked={targetLanguage === lang}
-                          onChange={() => handleTargetLanguageChange(lang)}
-                          className="accent-purple-600"
-                        />
-                        <ReactCountryFlag
-                          countryCode={languageToCountry[lang] || 'UN'}
-                          svg
-                          style={{ width: '1.5em', height: '1.5em', borderRadius: '50%' }}
-                          title={lang}
-                        />
-                        <span>{lang}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <button
-                    className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${targetLanguage ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                    onClick={handleStart}
-                    disabled={!targetLanguage}
-                  >
-                    Start
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </div>
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#f8e8ff] via-[#f3f8ff] to-[#ffe8f8] overflow-hidden">
+      {/* Animated Background Blobs */}
+      <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 opacity-30 rounded-full blur-3xl animate-pulse-slow z-0" />
+      <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] bg-gradient-to-br from-blue-200 via-green-200 to-purple-200 opacity-20 rounded-full blur-3xl animate-pulse-slow z-0" />
+      {/* Hero Section */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center py-20 w-full">
+        {/* Illustration */}
+        <div className="mb-8">
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="8" width="80" height="80" rx="24" fill="url(#paint0_linear)" />
+            <rect x="28" y="28" width="40" height="40" rx="12" fill="white" />
+            <rect x="36" y="36" width="24" height="8" rx="4" fill="url(#paint1_linear)" />
+            <rect x="36" y="52" width="24" height="8" rx="4" fill="url(#paint2_linear)" />
+            <defs>
+              <linearGradient id="paint0_linear" x1="8" y1="8" x2="88" y2="88" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f472b6" />
+                <stop offset="1" stopColor="#a78bfa" />
+              </linearGradient>
+              <linearGradient id="paint1_linear" x1="36" y1="36" x2="60" y2="44" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#a78bfa" />
+                <stop offset="1" stopColor="#f472b6" />
+              </linearGradient>
+              <linearGradient id="paint2_linear" x1="36" y1="52" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f472b6" />
+                <stop offset="1" stopColor="#a78bfa" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
-      )}
-      {/* Welcome Card */}
-      <motion.div
-        className="max-w-3xl w-full mx-auto text-center relative z-10"
-        initial={{ opacity: 0, scale: 0.95, y: 40 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        <div className="mb-12 bg-white/70 glass rounded-3xl shadow-2xl p-12 backdrop-blur-xl flex flex-col items-center">
-          <div className="flex items-center justify-center mb-6">
-            <Smile className="w-16 h-16 text-purple-500 drop-shadow-xl animate-bounce-slow" />
-          </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-gradient-move">
-            Welcome to Voix!
-          </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-gray-700 mb-6 animate-fade-in-up delay-200">
-            Your Adaptive Language Learning Companion
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-10 animate-fade-in delay-300">
-            Ready to start your language journey? Practice with AI-powered conversations, real-time translation, visual learning, and connect with a global community. Let's make learning fun and personal!
-          </p>
-          <button
-            onClick={onEnter}
-            className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-2xl font-bold text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto animate-fade-in-up delay-500"
-          >
-            <span>Start Learning</span>
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
-          </button>
-        </div>
-        {/* Features Preview */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 mt-10">
-          {[0,1,2,3].map(i => (
-            <div key={i} className={`bg-white/60 glass backdrop-blur-2xl rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-110 border border-white/30 ${cardAnimations[i]}`}> 
-              <div className={`bg-gradient-to-r ${i===0?'from-blue-500 to-blue-600':i===1?'from-green-500 to-green-600':i===2?'from-purple-500 to-purple-600':'from-indigo-500 to-purple-600'} rounded-xl p-3 w-fit mx-auto mb-4 shadow-lg`}>
-                {i===0 ? <MessageCircle className="w-8 h-8 text-white" /> : i===1 ? <Languages className="w-8 h-8 text-white" /> : i===2 ? <Camera className="w-8 h-8 text-white" /> : <Users className="w-8 h-8 text-white" />}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 animate-fade-in-up delay-200">{['AI Conversations','Smart Translation','Visual Learning','Global Community'][i]}</h3>
-              <p className="text-gray-600 text-sm animate-fade-in-up delay-300">{[
-                'Practice with intelligent AI that adapts to your learning pace',
-                'Instant, accurate translations with voice input support',
-                'Learn by identifying objects through your camera',
-                'Connect with native speakers and fellow learners',
-              ][i]}</p>
+        {/* Gradient Headline */}
+        <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent drop-shadow mb-4 animate-fade-in-up">Welcome to Nova AI</h1>
+        <p className="text-xl md:text-2xl text-gray-700 font-medium mb-2 animate-fade-in-up delay-100">Your all-in-one AI-powered language learning platform</p>
+        <p className="text-md md:text-lg text-gray-400 mb-8 animate-fade-in-up delay-200">Practice, translate, play, and connect with a global community</p>
+        <button
+          onClick={onEnter}
+          className="mt-2 px-12 py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold text-xl shadow-lg hover:scale-105 hover:from-purple-500 hover:to-pink-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-pink-400 animate-fade-in-up delay-300"
+        >
+          Enter Dashboard
+        </button>
+      </div>
+      {/* Features Carousel */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto mt-12">
+        <div className="flex flex-row gap-8 overflow-x-auto pb-4 snap-x snap-mandatory">
+          {[
+            {
+              icon: (
+                <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 9v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2z" /></svg>
+              ),
+              title: 'AI Conversations',
+              desc: 'Practice real conversations with a friendly AI partner.'
+            },
+            {
+              icon: (
+                <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 9v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2z" /></svg>
+              ),
+              title: 'Smart Translation',
+              desc: 'Instantly translate text with context-aware AI.'
+            },
+            {
+              icon: (
+                <svg className="w-10 h-10 text-pink-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 9v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2z" /></svg>
+              ),
+              title: 'Visual Learning',
+              desc: 'Learn through images, live video, and interactive games.'
+            },
+            {
+              icon: (
+                <svg className="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 9v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2z" /></svg>
+              ),
+              title: 'Global Community',
+              desc: 'Connect and practice with learners and native speakers worldwide.'
+            }
+          ].map((f, i) => (
+            <div key={i} className="snap-center min-w-[260px] bg-white/80 rounded-2xl p-8 shadow-lg flex flex-col items-center text-center hover:scale-105 transition-transform duration-200 group cursor-pointer">
+              <div className="mb-4">{f.icon}</div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-pink-500 transition-colors">{f.title}</h3>
+              <p className="text-gray-500 text-sm">{f.desc}</p>
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
+      {/* Testimonial Section */}
+      <div className="relative z-10 w-full max-w-2xl mx-auto mt-20 text-center">
+        <div className="bg-white/90 rounded-2xl p-10 shadow-xl flex flex-col items-center">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" className="w-16 h-16 rounded-full mb-4 border-4 border-pink-200 shadow" />
+          <blockquote className="text-xl italic text-gray-700 mb-2">“Nova AI made language learning fun and interactive. I love practicing with AI and meeting new friends!”</blockquote>
+          <span className="text-sm text-gray-500">— Maria, Nova AI Beta User</span>
+        </div>
+      </div>
+      {/* Footer */}
+      <footer className="relative z-10 w-full max-w-4xl mx-auto mt-20 mb-8 text-center text-gray-400 text-sm">
+        <div className="py-6 border-t border-white/30">© {new Date().getFullYear()} Nova AI. All rights reserved.</div>
+      </footer>
     </div>
   );
 };

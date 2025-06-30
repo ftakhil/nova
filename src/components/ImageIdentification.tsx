@@ -107,33 +107,27 @@ const ImageIdentification: React.FC<ImageIdentificationProps> = ({ onNavigate })
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              >
-                <ArrowLeft className="w-6 h-6 text-gray-600" />
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-full p-2">
-                  <Eye className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Visual Learning</h1>
-                  <p className="text-sm text-gray-600">Learn by identifying objects around you</p>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#f8e8ff] via-[#f3f8ff] to-[#ffe8f8] flex flex-col items-center justify-start p-4">
+      <div className="max-w-2xl w-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-10 mt-16 border border-white/60 relative">
+        {/* Back Button */}
+        {onNavigate && (
+          <button
+            className="absolute -top-6 left-6 flex items-center text-purple-600 hover:text-purple-800 font-semibold focus:outline-none bg-white/80 backdrop-blur rounded-full px-4 py-2 shadow-md border border-purple-100 transition-all hover:scale-105"
+            onClick={() => onNavigate('dashboard')}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            Back
+          </button>
+        )}
+        <div className="flex items-center space-x-4 mb-8">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-3 shadow-lg">
+            <svg className="w-8 h-8 text-white drop-shadow-lg" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 4h9" /><path strokeLinecap="round" strokeLinejoin="round" d="M4 9v6a2 2 0 002 2h6a2 2 0 002-2V9a2 2 0 00-2-2H6a2 2 0 00-2 2z" /></svg>
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm">Image Identification</h1>
+            <p className="text-md text-gray-500 mt-1">Identify objects and text in your images</p>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto p-4">
         {/* Camera/Upload Section */}
         {!selectedImage && !cameraActive && (
           <div className="grid md:grid-cols-2 gap-6 mb-8">
